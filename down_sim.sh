@@ -151,14 +151,14 @@ for DAY in $(seq ${SIM_FIRST_DAY} ${SIM_LAST_DAY}); do
 	
 	# motu client invocation
 	if [[ ! -e ${OUTPUT_DIR}/${OUTFILE_NAME} ]]; then
-	    echo "[$APPNAME] -- Downloading file ${OUTFILE_NAME}"
-	    python -m motuclient --user ${MOTU_USER} --pwd ${MOTU_PASW} --motu ${MOTU_HOST} --depth-min=${MIN_DEPTH} --depth-max=${MAX_DEPTH} --latitude-min=${REGION_MINLAT} --latitude-max=${REGION_MAXLAT} --longitude-min=${REGION_MINLON} --longitude-max=${REGION_MAXLON} --service-id=${SERVICE_NAME} --product-id=${PRODUCT_NAME} ${VAR_LIST} --out-name=${OUTFILE_NAME} --out-dir=${OUTPUT_DIR} --date-min=${T1} --date-max=${T2}
+	    echo "[$APPNAME] ------ Downloading file ${OUTFILE_NAME}"
+	    python -m motuclient --user ${MOTU_USER} --pwd ${MOTU_PASW} --motu ${MOTU_HOST} --depth-min=${MIN_DEPTH} --depth-max=${MAX_DEPTH} --latitude-min=${REGION_MINLAT} --latitude-max=${REGION_MAXLAT} --longitude-min=${REGION_MINLON} --longitude-max=${REGION_MAXLON} --service-id=${SERVICE_NAME} --product-id=${DAILY_PRODUCT_NAME} ${VAR_LIST} --out-name=${OUTFILE_NAME} --out-dir=${OUTPUT_DIR} --date-min=${T1} --date-max=${T2}
 
-	    echo "[$APPNAME] -- Manipulating file ${OUTFILE_NAME}"
+	    echo "[$APPNAME] ------ Manipulating file ${OUTFILE_NAME}"
 	    ncrename -d lat,latitude -d lon,longitude -v lat,latitude -v lon,longitude ${OUTPUT_DIR}/${OUTFILE_NAME}
 	    
 	else
-	    echo "[$APPNAME] -- File ${OUTFILE_NAME} already present"
+	    echo "[$APPNAME] ------ File ${OUTFILE_NAME} already present"
 	fi
        
     done

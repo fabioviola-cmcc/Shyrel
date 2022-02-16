@@ -114,11 +114,17 @@ if [[ ! -z $CONDA_ENV ]]; then
     conda activate $CONDA_ENV
 fi
 
-# create output folder, if needed
-OUTPUT_DIR=$FCST_OUTPUT_DIR/$DATE
-if [[ ! -d $OUTPUT_DIR ]]; then
-    mkdir -p $OUTPUT_DIR
+# create output folders, if needed
+DAILY_OUTPUT_DIR=$FCST_OUTPUT_DIR_DAILY/$DATE
+if [[ ! -d $DAILY_OUTPUT_DIR ]]; then
+    mkdir -p $DAILY_OUTPUT_DIR
 fi
+
+HOURLY_OUTPUT_DIR=$FCST_OUTPUT_DIR_HOURLY/$DATE
+if [[ ! -d $HOURLY_OUTPUT_DIR ]]; then
+    mkdir -p $HOURLY_OUTPUT_DIR
+fi
+
 
 # iterate over days
 for DAY in $(seq ${FCST_FIRST_DAY} ${FCST_LAST_DAY}); do
@@ -142,6 +148,12 @@ for DAY in $(seq ${FCST_FIRST_DAY} ${FCST_LAST_DAY}); do
 	    VAR_LIST="${VAR_LIST} --variable ${VARNAME}"
 	done
 
+	##########################################################
+	#
+	# DAILY file
+	#
+	##########################################################
+	
 	# determine the output filename
 	OUTFILE_NAME="${CURRDATE}_d-MERCATOR--${FILE_ACRONYM}--${REGION_ACRONYM}-b${DATE}_fc-fv01.nc"
 
@@ -150,17 +162,45 @@ for DAY in $(seq ${FCST_FIRST_DAY} ${FCST_LAST_DAY}); do
 	T2=${T1}
 	
 	# motu client invocation
-	if [[ ! -e ${OUTPUT_DIR}/${OUTFILE_NAME} ]]; then
-	    echo "[$APPNAME] -- Downloading file ${OUTFILE_NAME}"
-	    python -m motuclient --user ${MOTU_USER} --pwd ${MOTU_PASW} --motu ${MOTU_HOST} --depth-min=${MIN_DEPTH} --depth-max=${MAX_DEPTH} --latitude-min=${REGION_MINLAT} --latitude-max=${REGION_MAXLAT} --longitude-min=${REGION_MINLON} --longitude-max=${REGION_MAXLON} --service-id=${SERVICE_NAME} --product-id=${PRODUCT_NAME} ${VAR_LIST} --out-name=${OUTFILE_NAME} --out-dir=${OUTPUT_DIR} --date-min=${T1} --date-max=${T2}
+	if [[ ! -e ${DAILY_OUTPUT_DIR}/${OUTFILE_NAME} ]]; then
+	    echo "[$APPNAME] ------ Downloading hourly file ${OUTFILE_NAME}"
+	    python -m motuclient --user ${MOTU_USER} --pwd ${MOTU_PASW} --motu ${MOTU_HOST} --depth-min=${MIN_DEPTH} --depth-max=${MAX_DEPTH} --latitude-min=${REGION_MINLAT} --latitude-max=${REGION_MAXLAT} --longitude-min=${REGION_MINLON} --longitude-max=${REGION_MAXLON} --service-id=${SERVICE_NAME} --product-id=${DAILY_PRODUCT_NAME} ${VAR_LIST} --out-name=${OUTFILE_NAME} --out-dir=${DAILY_OUTPUT_DIR} --date-min=${T1} --date-max=${T2}
 
-	    echo "[$APPNAME] -- Manipulating file ${OUTFILE_NAME}"
-	    ncrename -d lat,latitude -d lon,longitude -v lat,latitude -v lon,longitude ${OUTPUT_DIR}/${OUTFILE_NAME}
+	    echo "[$APPNAME] ------ Manipulating file ${OUTFILE_NAME}"
+	    ncrename -d lat,latitude -d lon,longitude -v lat,latitude -v lon,longitude ${DAILY_OUTPUT_DIR}/${OUTFILE_NAME}
 	    
 	else
-	    echo "[$APPNAME] -- File ${OUTFILE_NAME} already present"
+	    echo "[$APPNAME] ------ File ${OUTFILE_NAME} already present"
 	fi
-       
+
+
+	##########################################################
+	#
+	# HOURLY file
+	#
+	##########################################################
+	
+	# determine the output filename
+	OUTFILE_NAME="${CURRDATE}_d-MERCATOR--${FILE_ACRONYM}--${REGION_ACRONYM}-b${DATE}_fc-fv01.nc"
+
+	# build the timesteps
+	T1="${CURRDATE:0:4}-${CURRDATE:4:2}-${CURRDATE:6:2} 12:00:00"
+	T2=${T1}
+	
+	# motu client invocation
+	if [[ ! -e ${HOURLY_OUTPUT_DIR}/${OUTFILE_NAME} ]]; then
+	    echo "[$APPNAME] ------ Downloading hourly file ${OUTFILE_NAME}"
+	    python -m motuclient --user ${MOTU_USER} --pwd ${MOTU_PASW} --motu ${MOTU_HOST} --depth-min=${MIN_DEPTH} --depth-max=${MAX_DEPTH} --latitude-min=${REGION_MINLAT} --latitude-max=${REGION_MAXLAT} --longitude-min=${REGION_MINLON} --longitude-max=${REGION_MAXLON} --service-id=${SERVICE_NAME} --product-id=${HOURLY_PRODUCT_NAME} ${VAR_LIST} --out-name=${OUTFILE_NAME} --out-dir=${HOURLY_OUTPUT_DIR} --date-min=${T1} --date-max=${T2}
+
+	    echo "[$APPNAME] ------ Manipulating file ${OUTFILE_NAME}"
+	    ncrename -d lat,latitude -d lon,longitude -v lat,latitude -v lon,longitude ${HOURLY_OUTPUT_DIR}/${OUTFILE_NAME}
+	    
+	else
+	    echo "[$APPNAME] ------ File ${OUTFILE_NAME} already present"
+	fi
+
+
+	
     done
 
 done
