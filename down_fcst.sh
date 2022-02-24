@@ -167,7 +167,7 @@ for DAY in $(seq ${FCST_FIRST_DAY} ${FCST_LAST_DAY}); do
 	    python -m motuclient --user ${MOTU_USER} --pwd ${MOTU_PASW} --motu ${MOTU_HOST} --depth-min=${MIN_DEPTH} --depth-max=${MAX_DEPTH} --latitude-min=${REGION_MINLAT} --latitude-max=${REGION_MAXLAT} --longitude-min=${REGION_MINLON} --longitude-max=${REGION_MAXLON} --service-id=${SERVICE_NAME} --product-id=${DAILY_PRODUCT_NAME} ${VAR_LIST} --out-name=${OUTFILE_NAME} --out-dir=${DAILY_OUTPUT_DIR} --date-min=${T1} --date-max=${T2}
 
 	    echo "[$APPNAME] ------ Manipulating file ${OUTFILE_NAME}"
-	    ncrename -d lat,latitude -d lon,longitude -v lat,latitude -v lon,longitude ${DAILY_OUTPUT_DIR}/${OUTFILE_NAME}
+	    ncrename -d latitude,lat -d longitude,lon -v latitude,lat -v longitude,lon ${DAILY_OUTPUT_DIR}/${OUTFILE_NAME}
 	    
 	else
 	    echo "[$APPNAME] ------ File ${OUTFILE_NAME} already present"
@@ -193,7 +193,7 @@ for DAY in $(seq ${FCST_FIRST_DAY} ${FCST_LAST_DAY}); do
 	    python -m motuclient --user ${MOTU_USER} --pwd ${MOTU_PASW} --motu ${MOTU_HOST} --depth-min=${MIN_DEPTH} --depth-max=${MAX_DEPTH} --latitude-min=${REGION_MINLAT} --latitude-max=${REGION_MAXLAT} --longitude-min=${REGION_MINLON} --longitude-max=${REGION_MAXLON} --service-id=${SERVICE_NAME} --product-id=${HOURLY_PRODUCT_NAME} ${VAR_LIST} --out-name=${OUTFILE_NAME} --out-dir=${HOURLY_OUTPUT_DIR} --date-min=${T1} --date-max=${T2}
 
 	    echo "[$APPNAME] ------ Manipulating file ${OUTFILE_NAME}"
-	    ncrename -d lat,latitude -d lon,longitude -v lat,latitude -v lon,longitude ${HOURLY_OUTPUT_DIR}/${OUTFILE_NAME}
+	    ncrename -d latitude,lat -d longitude,lon -v latitude,lat -v longitude,lon ${HOURLY_OUTPUT_DIR}/${OUTFILE_NAME}
 	    
 	else
 	    echo "[$APPNAME] ------ File ${OUTFILE_NAME} already present"
