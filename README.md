@@ -35,3 +35,12 @@ $ ./down_sim.sh --conf=shyrel.conf
 $ ./down_fcst.sh --conf=shyrel.conf
 ```
 
+## Download ECMWF forcings
+
+To download ECMWF forcings, we need to execute the script `ecmwf_forcings.sh` in this way:
+
+```
+$ ./ecmwf_forcings.sh --conf=shyrel.conf --day=20220104
+```
+
+This script will be soon integrated into shyrel.
