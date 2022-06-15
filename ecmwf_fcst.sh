@@ -70,7 +70,7 @@ done
 
 if [[ -z $CONFIGFILE ]]; then
     echo "[$APPNAME][ERROR] === Configuration file not provided!"
-    exit
+    exit 2
 else
     echo "[$APPNAME] === Loading config file $CONFIGFILE"
     source $(realpath $CONFIGFILE)
@@ -91,9 +91,61 @@ else
     TODAY=$(date "+%Y%m%d")
     if [[ $PRODDATE -gt $TODAY ]]; then    
 	    echo "[$APPNAME] === $PRODDATE cannot be in the future!"    
-	    exit
+	    exit 3
     fi
 fi
+
+
+################################################
+#
+# Check input availability
+#
+################################################
+
+# determine PRODDATE year, month and day
+PRODYEAR=${PRODDATE:0:4}
+PRODMONTH=${PRODDATE:4:2}
+PRODDAY=${PRODDATE:6:2}
+
+for D in $(seq 0 2); do
+    
+    REFDATE=$(date -d "$PRODDATE +${D}days" +"%Y%m%d")
+    REFYEAR=${REFDATE:0:4}
+    REFMONTH=${REFDATE:4:2}
+    REFDAY=${REFDATE:6:2}
+    JLS_FILES=$(ls ${GRIB_FCST_DIR}/${PRODDATE}/JLS${PRODMONTH}${PRODDAY}0000${REFMONTH}${REFDAY}*001 | wc -l)
+    
+    if [[ $D -eq 0 ]]; then        
+        TEMP_PRODDATE=$(date -d "$PRODDATE -1days" +"%Y%m%d")
+        TEMP_PRODYEAR=${TEMP_PRODDATE:0:4}
+        TEMP_PRODMONTH=${TEMP_PRODDATE:4:2}
+        TEMP_PRODDAY=${TEMP_PRODDATE:6:2}
+        ANFILE0=${GRIB_FCST_DIR}/${TEMP_PRODDATE}/JLS${TEMP_PRODMONTH}${TEMP_PRODDAY}1200${TEMP_PRODMONTH}${TEMP_PRODDAY}23001
+        ANFILE1=${GRIB_FCST_DIR}/${TEMP_PRODDATE}/JLS${TEMP_PRODMONTH}${TEMP_PRODDAY}1200${REFMONTH}${REFDAY}00001
+        
+        if [[ ! -e $ANFILE0 ]]; then
+            echo "[$APPNAME][ERROR] === Missing input file $ANFILE0 !!!"
+            exit 4
+        fi
+
+        if [[ ! -e $ANFILE1 ]]; then
+            echo "[$APPNAME][ERROR] === Missing input file $ANFILE1 !!!"
+            exit 4
+        fi
+
+        if [[ ! $JLS_FILES -eq 23 ]]; then
+            echo "[$APPNAME][ERROR] === Missing input JLS files for day $REFDATE !!!"
+            exit 4
+        fi
+        
+    else
+        if [[ ! $JLS_FILES -eq 24 ]]; then
+            echo "[$APPNAME][ERROR] === Missing input JLS files for day $REFDATE !!!"
+            exit 4          
+        fi        
+    fi
+    
+done
 
 
 ################################################
