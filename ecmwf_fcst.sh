@@ -240,12 +240,12 @@ for D in $(seq 0 2); do
         rm -f ${WDIR}/fc_${REFDATE}_${HOUR}_ALLNCVAR.nc
         ncks -O -h -O -d lon,${REGION_MINLON},${REGION_MAXLON} -d lat,${REGION_MINLAT},${REGION_MAXLAT} -v time,lon,lat,U10M,V10M,T2M,D2M,TCC,MSL ${WDIR}/fc_${REFDATE}_${HOUR}_CONVERTED.nc ${WDIR}/fc_${REFDATE}_${HOUR}_ALLNCVAR.nc
 
-        # create a file with only TP
+        # create a file with TP
         echo "[$APPNAME][$REFDATE] ====== Calculating TP"
         rm -f ${WDIR}/fc_${REFDATE}_${HOUR}_LSPCP.nc
         rm -f ${WDIR}/fc_${REFDATE}_${HOUR}_TP.nc
         ncks -O -h -O -d lon,${REGION_MINLON},${REGION_MAXLON} -d lat,${REGION_MINLAT},${REGION_MAXLAT} -v time,lon,lat,LSP,CP ${WDIR}/fc_${REFDATE}_${HOUR}_CONVERTED.nc ${WDIR}/fc_${REFDATE}_${HOUR}_LSPCP.nc            
-        ncap2 -s "precip=LSP+CP" ${WDIR}/fc_${REFDATE}_${HOUR}_LSPCP.nc ${WDIR}/fc_${REFDATE}_${HOUR}_TP.nc
+        ncap2 -s "precip=LSP+CP" ${WDIR}/fc_${REFDATE}_${HOUR}_LSPCP.nc ${WDIR}/fc_${REFDATE}_${HOUR}_TP.nc       
         
     done
     
@@ -270,13 +270,14 @@ for D in $(seq 0 2); do
 
         # remove useless variables
         echo "[$APPNAME][$REFDATE] ========= Merging TP_inst with the other variables (timestep $H)"
-        rm -f ${WDIR}/fc_${REFDATE}_${H}.nc
+        rm -f ${WDIR}/fc_${REFDATE}_${H}_CLEAN.nc
         ncks -x -v CP,LSP ${WDIR}/fc_${REFDATE}_${H}_MERGED.nc ${WDIR}/fc_${REFDATE}_${H}_CLEAN.nc
         
     done
 
     # merge 24 timesteps
-    echo "[$APPNAME][$REFDATE] ====== Merging all the timesteps"    
+    echo "[$APPNAME][$REFDATE] ====== Merging all the timesteps"
+    rm -f ${WDIR}/fc_${REFDATE}.nc
     ncrcat ${WDIR}/fc_${REFDATE}_*_CLEAN.nc ${WDIR}/fc_${REFDATE}.nc
 
     # remove attributes
