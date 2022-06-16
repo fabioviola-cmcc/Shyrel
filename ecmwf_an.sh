@@ -102,28 +102,40 @@ fi
 #
 ################################################
 
-# JLS${mmo}${ddo}1200${mmo}${ddo}18001
-# JLS${mmo}${ddo}1200${mm}${dd}00001
-# JLS${mm}${dd}0000${mm}${dd}06001
-# JLS${mm}${dd}0000${mm}${dd}12001
-# JLS${mm}${dd}1200${mm}${dd}18001
-# mmoddo=mmdd-1
-# 2-1=TP(00)
-# 3=TP(6)
-# 4-3=TP(12)
-# 4=TP(18)
+for D in $(seq 1 3); do
 
+    # determine REFDATE
+    REFDATE=$(date -d "$PRODDATE -${D}days" +"%Y%m%d")
+    REFYEAR=${REFDATE:0:4}
+    REFMONTH=${REFDATE:4:2}
+    REFDAY=${REFDATE:6:2}    
 
+    # determine TEMP_REFDATE needed to calculate TP
+    TEMP_REFDATE=$(date -d "$REFDATE -1days" +"%Y%m%d")
+    TEMP_REFYEAR=${TEMP_REFDATE:0:4}
+    TEMP_REFMONTH=${TEMP_REFDATE:4:2}
+    TEMP_REFDAY=${TEMP_REFDATE:6:2}
 
+    
+    # Build the list of file to process
+    FILE_TO_PROCESS=()
+    FILE_TO_PROCESS+=($GRIB_FCST_DIR/$TEMP_REFDATE/JLS${TEMP_REFMONTH}${TEMP_REFDAY}1200${TEMP_REFMONTH}${TEMP_REFDAY}18001)
+    FILE_TO_PROCESS+=($GRIB_FCST_DIR/$TEMP_REFDATE/JLS${TEMP_REFMONTH}${TEMP_REFDAY}1200${REFMONTH}${REFDAY}00001) 
+    FILE_TO_PROCESS+=($GRIB_FCST_DIR/$REFDATE/JLS${REFMONTH}${REFDAY}0000${REFMONTH}${REFDAY}06001)
+    FILE_TO_PROCESS+=($GRIB_FCST_DIR/$REFDATE/JLS${REFMONTH}${REFDAY}0000${REFMONTH}${REFDAY}12001)
+    FILE_TO_PROCESS+=($GRIB_FCST_DIR/$REFDATE/JLS${REFMONTH}${REFDAY}1200${REFMONTH}${REFDAY}18001)
+    for FILE in $(ls $GRIB_AN_DIR/$REFYEAR/$REFMONTH/JLD${REFMONTH}${REFDAY}*${REFMONTH}${REFDAY}*001); do
+        FILES_TO_PROCESS+=($FILE)
+    done
 
-
-
-
-
-
-
-
-
+    for FILE in ${FILE_TO_PROCESS[*]}; do
+        if [[ ! -e $FILE ]]; then
+            echo "[$APPNAME] === ERROR! Missing input file $FILE"
+            exit 4
+        fi
+    done
+    
+done
 
 
 ################################################
